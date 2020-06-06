@@ -84,7 +84,7 @@ void loop() {
  **/
 void RequestTowerCellID() {
     Serial.println("requesting cell tower info...");
-    int ret = Cellular.command(_cbCELLINFO, &ourTowerInfo, 15000, "AT+UCELLINFO=1\r\n");
+    int ret = Cellular.command(_cbCELLINFO, &ourTowerInfo, 15000, "AT+UCELLINFO?\r\n");
 }
 
 
