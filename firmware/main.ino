@@ -1,3 +1,5 @@
+
+//
 //
 
 //
@@ -5,6 +7,7 @@
 // Leaving this note here until I add a max number of retries.
 //
 
+#include "Particle.h"
 
 #pragma PARTICLE_NO_PREPROCESSOR
 
@@ -66,14 +69,14 @@ void loop() {
     if (!gotLocation) {
         unsigned int now = millis();
 
-        if (((now - lastLocationRequest) > ATTEMPT_FREQUENCY) || (lastLocationRequest == 0)) {
-            lastLocationRequest = now;
             RequestTowerCellID();
-        }
-        else {
-            // any updates?
-            Cellular.command(_cbCELLINFO, &ourTowerInfo, 1000, "");
-        }
+
+
+
+        Particle.publish("test", String('a'), PRIVATE);
+        gotLocation = false;
+        Particle.publish("test", String('b'), PRIVATE);
+     Serial.println(String::format("test"));
     }
 }
 
@@ -93,9 +96,9 @@ void RequestTowerCellID() {
  * Called after we've parsed a good response from the cellular module about our tower
  **/
 void OnCellTowerFound(MDM_CELL_INFO *towerInfo) {
-    if (gotLocation) {
-        return;
-    }
+    // if (gotLocation) {
+    //     return;
+    // }
 
     Serial.println("Current Cell Tower Information:");
     Serial.println("Tower ID:" + String(towerInfo->cellId));
@@ -166,8 +169,11 @@ void onLocationReceived(const char *event, const char *data) {
         + "}";
 
     Particle.publish("current_location", dataJson, 60, PRIVATE);
-
+    Serial.println(String("Test1"));
     gotLocation = true;
+    delay(1000);
+    Serial.println(String("Test2"));
+    gotLocation = false;
 }
 
 
