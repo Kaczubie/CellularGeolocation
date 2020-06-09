@@ -1,5 +1,3 @@
-
-//
 //
 
 //
@@ -8,6 +6,14 @@
 //
 
 #include "Particle.h"
+//
+//
+
+//
+//  NOTE!  Don't leave this running forever, it'll keep trying until it gets a fix!  It might consume a lot of data on accident.
+// Leaving this note here until I add a max number of retries.
+//
+
 
 #pragma PARTICLE_NO_PREPROCESSOR
 
@@ -17,7 +23,7 @@ unsigned int lastPublish;
 bool gotLocation = false;
 unsigned int lastLocationRequest = 0;
 
-
+int config_id = 3;
 
 struct MDM_CELL_INFO {
     int cellId;
@@ -50,10 +56,10 @@ MDM_CELL_INFO ourTowerInfo;
 
 void onLocationReceived(const char *event, const char *data);
 void onErrorReceived(const char *event, const char *data);
-
+void switchEsparConfig();
 int _cbCELLINFO(int type, const char* buf, int len, MDM_CELL_INFO* data);
 
-
+int digital_pins[] = {D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11};
 
 
 void setup() {
@@ -61,22 +67,22 @@ void setup() {
 
     Particle.subscribe("hook-response/get_location", onLocationReceived, MY_DEVICES);
     Particle.subscribe("hook-error/get_location", onErrorReceived, MY_DEVICES);
+    for (int i=0; i<12; i++){
+        pinMode( digital_pins[i], OUTPUT);
+    }
+    switchEsparConfig();
 }
 
 void loop() {
     // nothing to do!
 
     if (!gotLocation) {
-        unsigned int now = millis();
+    unsigned int now = millis();
 
-            RequestTowerCellID();
-
-
-
-        Particle.publish("test", String('a'), PRIVATE);
-        gotLocation = false;
-        Particle.publish("test", String('b'), PRIVATE);
-     Serial.println(String::format("test"));
+    RequestTowerCellID();
+  
+    gotLocation = false;
+    Serial.println(String::format("test"));
     }
 }
 
@@ -169,10 +175,8 @@ void onLocationReceived(const char *event, const char *data) {
         + "}";
 
     Particle.publish("current_location", dataJson, 60, PRIVATE);
-    Serial.println(String("Test1"));
     gotLocation = true;
     delay(1000);
-    Serial.println(String("Test2"));
     gotLocation = false;
 }
 
@@ -238,4 +242,15 @@ int _cbCELLINFO(int type, const char* buf, int len, MDM_CELL_INFO* data)
     }
 
     return WAIT;
+}
+
+
+void switchEsparConfig() {
+    for(int i=0; i < 12; i++){
+        digitalWrite(digital_pins[i], LOW); 
+    }
+    
+    digitalWrite(digital_pins[config_id % 12], HIGH); 
+    digitalWrite(digital_pins[config_id + 1 %12], HIGH); 
+    digitalWrite(digital_pins[config_id + 2 %12], HIGH); 
 }
