@@ -23,7 +23,7 @@ unsigned int lastPublish;
 bool gotLocation = false;
 unsigned int lastLocationRequest = 0;
 
-int config_id = 3;
+int config_id = 10;
 
 struct MDM_CELL_INFO {
     int cellId;
@@ -77,12 +77,16 @@ void loop() {
     // nothing to do!
 
     if (!gotLocation) {
-    unsigned int now = millis();
+        unsigned int now = millis();
 
-    RequestTowerCellID();
-  
-    gotLocation = false;
-    Serial.println(String::format("test"));
+        RequestTowerCellID();
+
+        gotLocation = false;
+        Serial.println(String::format("test"));
+    }
+    else{
+        delay(1000);
+        gotLocation = false;
     }
 }
 
@@ -92,6 +96,7 @@ void loop() {
  * Asks the Cellular module for info about the tower it's connected to.
  **/
 void RequestTowerCellID() {
+     Serial.println(String::format("UUUUUUUUUUWAGA %d, %d, %d ",( config_id )% 12,( config_id + 1 )%12, (config_id + 2 )%12));
     Serial.println("requesting cell tower info...");
     int ret = Cellular.command(_cbCELLINFO, &ourTowerInfo, 15000, "AT+UCELLINFO?\r\n");
 }
@@ -176,8 +181,7 @@ void onLocationReceived(const char *event, const char *data) {
 
     Particle.publish("current_location", dataJson, 60, PRIVATE);
     gotLocation = true;
-    delay(1000);
-    gotLocation = false;
+
 }
 
 
@@ -247,10 +251,11 @@ int _cbCELLINFO(int type, const char* buf, int len, MDM_CELL_INFO* data)
 
 void switchEsparConfig() {
     for(int i=0; i < 12; i++){
-        digitalWrite(digital_pins[i], LOW); 
+        digitalWrite(digital_pins[i], LOW);
     }
-    
-    digitalWrite(digital_pins[config_id % 12], HIGH); 
-    digitalWrite(digital_pins[config_id + 1 %12], HIGH); 
-    digitalWrite(digital_pins[config_id + 2 %12], HIGH); 
+
+    digitalWrite(digital_pins[config_id % 12], HIGH);
+    digitalWrite(digital_pins[(config_id + 1) %12], HIGH);
+    digitalWrite(digital_pins[(config_id + 2 )%12], HIGH);
 }
+
