@@ -23,7 +23,7 @@ unsigned int lastPublish;
 bool gotLocation = false;
 unsigned int lastLocationRequest = 0;
 
-int config_id = 10;
+int config_id = 0;
 
 struct MDM_CELL_INFO {
     int cellId;
@@ -87,6 +87,10 @@ void loop() {
     else{
         delay(1000);
         gotLocation = false;
+        config_id++;
+        if (config_id > 11)
+            config_id = 0;
+        switchEsparConfig();
     }
 }
 
